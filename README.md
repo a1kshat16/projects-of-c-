@@ -193,8 +193,135 @@ Power (a^b): 1   (⚠️ see Known Issues — pow() bug)
 
 ---
 
+project2.c++ 
+# ⚙️ CPU Scheduling Algorithms Simulator (C++)
+
+![C++](https://img.shields.io/badge/C++-11+-blue.svg)
+![License](https://img.shields.io/badge/License-MIT-green.svg)
+![Status](https://img.shields.io/badge/Status-Completed-brightgreen.svg)
+
+## 📌 Overview
+A console-based simulator implementing four classic **CPU Scheduling Algorithms** used in Operating Systems: **FCFS (First Come First Serve)**, **SJF (Shortest Job First)**, **Round Robin**, and **Priority Scheduling**. The program takes process details as input, applies the selected algorithm, and outputs each process's waiting time, turnaround time, and a simple Gantt chart — replicating how an OS scheduler decides process execution order.
+
+## 🎯 Problem Statement
+In multitasking operating systems, the CPU must decide the order in which multiple competing processes get executed. Different scheduling strategies trade off fairness, responsiveness, and throughput differently. This project simulates and compares these strategies on the same set of processes, helping visualize how each algorithm affects waiting and turnaround time — a core concept in every Operating Systems course.
+
+---
+
+## ✨ Key Features
+
+- 🕐 **FCFS (First Come First Serve)** — Processes are executed strictly in order of arrival
+- ⏱️ **SJF (Shortest Job First, Non-preemptive)** — Processes are sorted and executed by shortest burst time first
+- 🔄 **Round Robin** — Time-sliced, preemptive scheduling using a user-defined quantum, cycling through processes fairly
+- 🎯 **Priority Scheduling** — Processes are executed in order of highest priority first
+- 📊 **Waiting & Turnaround Time Calculation** — Automatically computed for every process under the chosen algorithm
+- 📉 **Gantt Chart Display** — Simple text-based visualization of process execution order and timing
+- ⚠️ **Input Validation** — Rejects zero/negative process counts and invalid Round Robin time quantums
+
+---
+
+## 🛠️ Tech Stack & Concepts Used
+
+| Category | Details |
+|---|---|
+| Language | C++ (C++11 or later) |
+| OS Concepts | Process scheduling, waiting time, turnaround time, preemptive vs. non-preemptive scheduling |
+| Data Structures | `struct Process`, `vector<Process>` |
+| Algorithms | Sorting-based scheduling (FCFS, SJF, Priority), time-slice simulation (Round Robin) |
+| STL Libraries | `<vector>`, `<algorithm>`, `<climits>` |
+
+---
+
+## 🔍 How It Works (Design Breakdown)
+
+### 1. `Process` Struct
+Holds each process's `pid`, `arrivalTime`, `burstTime`, `priority`, and the computed `waitingTime` and `turnaroundTime`.
+
+### 2. FCFS — `FCFS()`
+The foundational algorithm: processes execute strictly by arrival order. `waitingTime = currentTime - arrivalTime`, and `turnaroundTime = waitingTime + burstTime`. Every other non-preemptive algorithm in this project is implemented by **sorting first, then reusing this same FCFS logic** — a neat design pattern that avoids code duplication.
+
+### 3. SJF — `SJF()`
+Sorts all processes by `burstTime` ascending using `compareByBurstTime`, then calls `FCFS()` on the sorted list — so the shortest job effectively goes first.
+
+### 4. Priority Scheduling — `PriorityScheduling()`
+Sorts processes by `priority` descending using `compareByPriority` (higher number = higher priority), then reuses `FCFS()` the same way SJF does.
+
+### 5. Round Robin — `RoundRobin()`
+The only **preemptive** algorithm here. Each process gets a fixed `quantum` of CPU time per turn; if it doesn't finish, it's revisited in the next cycle. Tracks `remainingBurstTime` per process and loops until all processes complete, incrementing `currentTime` after each time slice.
+
+### 6. `displayResults()`
+Prints a table of PID, arrival time, burst time, priority, waiting time, and turnaround time for every process, followed by a basic text Gantt chart showing execution order and timestamps.
+
+### 7. `main()`
+Collects process count and details from the user, validates input, prompts for algorithm choice (and time quantum if Round Robin is selected), dispatches to the correct scheduling function, and displays results.
+
+---
 
 
 
+
+## 🖥️ Sample Run
+
+
+Enter number of processes: 3
+Enter arrival time of process 1: 0
+Enter burst time of process 1: 5
+Enter priority of process 1 (higher value means higher priority): 2
+Enter arrival time of process 2: 1
+Enter burst time of process 2: 3
+Enter priority of process 2 (higher value means higher priority): 1
+Enter arrival time of process 3: 2
+Enter burst time of process 3: 8
+Enter priority of process 3 (higher value means higher priority): 3
+
+Choose Scheduling Algorithm: 
+1. FCFS 
+2. SJF 
+3. Round Robin 
+4. Priority Scheduling
+Enter choice: 1
+
+PID	Arrival	Burst	Priority	Waiting	Turnaround
+1	0	5	2		0	5
+2	1	3	1		4	7
+3	2	8	3		7	15
+
+Gantt Chart:
+| P1 | P2 | P3 |
+0	5	8	16
+
+
+---
+
+## ⚠️ Known Issues / Limitations
+
+- **Round Robin doesn't check arrival time properly** — a process with a later arrival time can still be scheduled at `currentTime = 0` in the first pass, which isn't strictly correct preemptive behavior.
+- **`waitingTime` in Round Robin accumulates incorrectly across multiple visits** — it's recalculated using `currentTime - arrivalTime` on every time slice rather than tracking true idle/waiting periods, which can overstate waiting time for processes needing multiple rounds.
+- **Gantt chart is simplistic** — it prints process order and cumulative burst times but doesn't account for idle CPU time gaps (e.g., when no process has arrived yet).
+- **No tie-breaking rule** — if two processes have equal burst time (SJF) or equal priority, order depends on `sort`'s implementation-defined stability.
+- **Priority scheduling ignores arrival time entirely** — a process can be scheduled before it has technically "arrived."
+
+---
+
+## 💡 Real-World Applications
+
+- 🖥️ **Operating Systems Education** — Directly demonstrates textbook CPU scheduling algorithms taught in every OS course
+- 🧵 **Understanding Multitasking** — Shows how an OS decides which process/thread gets CPU time and for how long
+- 📱 **Embedded/RTOS Design Intuition** — Round Robin is widely used in real-time operating systems; this simulates its core mechanics
+- 🎓 **Interview Preparation** — Scheduling algorithms are a common OS/systems-design interview topic
+- 🧩 **Foundation for Simulators** — Can be extended into a full OS process-scheduling visualizer or teaching tool
+
+---
+
+## 🚀 Future Improvements
+
+- [ ] Fix Round Robin to correctly respect arrival time (skip processes that haven't arrived yet)
+- [ ] Fix waiting time accumulation logic in Round Robin for multi-round processes
+- [ ] Add **preemptive SJF (Shortest Remaining Time First)** and **preemptive Priority Scheduling**
+- [ ] Improve Gantt chart to show idle CPU time and proper time-stamped segments
+- [ ] Add average waiting time and average turnaround time summary output
+- [ ] Add a graphical Gantt chart (web-based or GUI) instead of text-only
+- [ ] Add unit tests comparing computed results against known textbook examples
+---
 
 
